@@ -1,4 +1,5 @@
 import { Route, Routes } from "react-router-dom";
+import { Toaster } from "sonner";
 import "./App.css";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
@@ -6,7 +7,8 @@ import Signup from "./pages/Signup";
 
 function App() {
   return (
-    <main>
+    <main className="h-screen">
+      <Toaster position="top-right" />
       <Routes>
         <Route path="/">
           <Route index element={<Home />} />
@@ -15,14 +17,6 @@ function App() {
         </Route>
       </Routes>
     </main>
-    // <div>
-    //   <nav>
-    //     <Link to="/login">Login</Link>
-    //     <Link to="/signup">Signup</Link>
-    //     <Link to="/home">Home</Link>
-    //   </nav>
-    //   <Outlet />
-    // </div>
   );
 }
 

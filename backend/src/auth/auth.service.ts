@@ -1,12 +1,18 @@
-import { ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import { ConflictException, Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
+import { RequestUser } from 'src/types/request';
+import { compare, hash } from 'src/utils/hash';
 import { CreateUserDto } from './dto/create-user.dto';
-import { User } from './entities/user.entity';
+import { User, UserDocument } from './entities/user.entity';
 
 @Injectable()
 export class AuthService {
-  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
+  constructor(
+    @InjectModel(User.name) private userModel: Model<User>,
+    private jwtService: JwtService,
+  ) {}
 
   async signUp(createUserDto: CreateUserDto): Promise<User> {
     const user = await this.userModel.findOne({ email: createUserDto.email }).exec();
@@ -15,16 +21,27 @@ export class AuthService {
       throw new ConflictException('User already exists');
     }
 
-    const createdUser = new this.userModel(createUserDto);
+    const hashedPassword = await hash(createUserDto.password);
+    const createdUser = new this.userModel({ ...createUserDto, password: hashedPassword });
     return createdUser.save();
   }
 
-  async signIn(email: string, password: string): Promise<User | null> {
-    const user = await this.userModel.findOne({ email, password }).exec();
+  signIn(user: RequestUser): { accessToken: string; user: RequestUser } {
+    const payload = { email: user.email, sub: user.id, id: user.id, name: user.name };
 
-    if (!user) {
-      throw new NotFoundException('User not found');
+    return {
+      user,
+      accessToken: this.jwtService.sign(payload),
+    };
+  }
+
+  async validateUser(email: string, password: string): Promise<Pick<UserDocument, 'id' | 'email' | 'name'> | null> {
+    const user = await this.userModel.findOne({ email }).select('+password').exec();
+    if (user && (await compare(user.password, password))) {
+      const { email, name, _id } = user.toObject();
+      return { id: _id.toString(), email, name };
     }
-    return user;
+
+    return null;
   }
 }

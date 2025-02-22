@@ -20,7 +20,7 @@ async function bootstrap() {
   const port = appConfig.get<number>('PORT') || 3000;
 
   // Swagger
-  SwaggerModule.setup('docs', app, swaggerSetup(app, swaggerUsername, swaggerPassword));
+  SwaggerModule.setup('/api/docs', app, swaggerSetup(app, swaggerUsername, swaggerPassword));
 
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}`);
@@ -30,7 +30,7 @@ function swaggerSetup(app: INestApplication, swaggerUsername: string, swaggerPas
   // Secure the documentation page
 
   app.use(
-    ['/docs', '/docs-json'],
+    ['/api/docs', '/api/docs-json'],
     basicAuth({
       challenge: true,
       users: {
@@ -40,17 +40,8 @@ function swaggerSetup(app: INestApplication, swaggerUsername: string, swaggerPas
   );
 
   // Configure Swagger
-  const config = new DocumentBuilder().setVersion('1.0.0').addBearerAuth(
-    {
-      type: 'http',
-      in: 'header',
-      scheme: 'bearer',
-      bearerFormat: 'JWT',
-      name: 'JWT',
-      description: 'Enter JWT token',
-    },
-    'JWT-auth',
-  );
+  const config = new DocumentBuilder().setVersion('1.0.0').addBearerAuth();
+
   config.setTitle(`App API (${process.env.NODE_ENV})`);
   config.setDescription(`App's API Documentation (${process.env.NODE_ENV} Environment)`);
 

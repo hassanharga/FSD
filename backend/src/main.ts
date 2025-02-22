@@ -20,21 +20,13 @@ async function bootstrap() {
   const port = appConfig.get<number>('PORT') || 3000;
 
   // Swagger
-  SwaggerModule.setup(
-    'docs',
-    app,
-    swaggerSetup(app, swaggerUsername, swaggerPassword),
-  );
+  SwaggerModule.setup('docs', app, swaggerSetup(app, swaggerUsername, swaggerPassword));
 
   await app.listen(port);
   Logger.log(`🚀 Application is running on: http://localhost:${port}`);
 }
 
-function swaggerSetup(
-  app: INestApplication,
-  swaggerUsername: string,
-  swaggerPassword: string,
-) {
+function swaggerSetup(app: INestApplication, swaggerUsername: string, swaggerPassword: string) {
   // Secure the documentation page
 
   app.use(
@@ -60,9 +52,7 @@ function swaggerSetup(
     'JWT-auth',
   );
   config.setTitle(`App API (${process.env.NODE_ENV})`);
-  config.setDescription(
-    `App's API Documentation (${process.env.NODE_ENV} Environment)`,
-  );
+  config.setDescription(`App's API Documentation (${process.env.NODE_ENV} Environment)`);
 
   return SwaggerModule.createDocument(app, config.build());
 }

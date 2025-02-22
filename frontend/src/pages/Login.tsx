@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
 
 const formSchema = z.object({
   email: z.string().email(),
@@ -18,8 +19,24 @@ const formSchema = z.object({
       /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
       "Password must contain at least 8 characters, one letter, one number and one special character"
     ),
-  confirmPassword: z.string(),
 });
+
+type FormData = z.infer<typeof formSchema>;
+
+async function loginUser(data: FormData): Promise<{ accessToken: string }> {
+  const response = await fetch("/api/auth/signin", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.message || "Network response was not ok");
+  }
+  return response.json();
+}
 
 export const Login = () => {
   const form = useForm<z.infer<typeof formSchema>>({
@@ -30,26 +47,34 @@ export const Login = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values);
-      toast.success(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationKey: ["loginUser"],
+    mutationFn: loginUser,
+    onSuccess: (data) => {
+      toast.success("Login successful!");
+      form.reset();
+      if (data.accessToken) {
+        localStorage.setItem("accessToken", data.accessToken);
+        navigate("/");
+      }
+    },
+    onError: () => {
       toast.error("Failed to submit the form. Please try again.");
-    }
+    },
+  });
+
+  function onSubmit(values: FormData) {
+    mutation.mutate(values);
   }
 
   return (
     <div className="flex min-h-[60vh] h-full w-full items-center justify-center px-4">
       <Card className="mx-auto max-w-sm">
         <CardHeader>
-          <CardTitle className="text-2xl">Register</CardTitle>
-          <CardDescription>Create a new account by filling out the form below.</CardDescription>
+          <CardTitle className="text-2xl">Login</CardTitle>
+          <CardDescription>Login to your account by filling out the form below.</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -78,7 +103,7 @@ export const Login = () => {
                     <FormItem className="grid gap-2">
                       <FormLabel htmlFor="password">Password</FormLabel>
                       <FormControl>
-                        <PasswordInput id="password" placeholder="******" autoComplete="new-password" {...field} />
+                        <PasswordInput id="password" placeholder="******" {...field} />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -93,7 +118,7 @@ export const Login = () => {
           </Form>
           <div className="mt-4 text-center text-sm">
             New user?
-            <Link to="/register" className="underline">
+            <Link to="/signup" className="underline">
               Register
             </Link>
           </div>

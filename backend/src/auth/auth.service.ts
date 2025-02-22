@@ -14,7 +14,7 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async signUp(createUserDto: CreateUserDto): Promise<User> {
+  async signUp(createUserDto: CreateUserDto): Promise<{ success: boolean }> {
     const user = await this.userModel.findOne({ email: createUserDto.email }).exec();
 
     if (user) {
@@ -23,7 +23,9 @@ export class AuthService {
 
     const hashedPassword = await hash(createUserDto.password);
     const createdUser = new this.userModel({ ...createUserDto, password: hashedPassword });
-    return createdUser.save();
+    await createdUser.save();
+
+    return { success: true };
   }
 
   signIn(user: RequestUser): { accessToken: string; user: RequestUser } {

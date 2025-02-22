@@ -8,7 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
-import { Link } from "react-router-dom";
+import { useMutation } from "@tanstack/react-query";
+import { Link, useNavigate } from "react-router-dom";
 
 const formSchema = z
   .object({
@@ -27,8 +28,25 @@ const formSchema = z
     message: "Passwords do not match",
   });
 
+type FormData = z.infer<typeof formSchema>;
+
+async function registerUser(data: FormData): Promise<{ success: boolean }> {
+  const response = await fetch("/api/auth/signup", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
+  });
+  if (!response.ok) {
+    const errorResponse = await response.json();
+    throw new Error(errorResponse.message || "Network response was not ok");
+  }
+  return response.json();
+}
+
 export const Signup = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: "",
@@ -38,18 +56,23 @@ export const Signup = () => {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    try {
-      console.log(values);
-      toast.success(
-        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
-          <code className="text-white">{JSON.stringify(values, null, 2)}</code>
-        </pre>
-      );
-    } catch (error) {
-      console.error("Form submission error", error);
+  const navigate = useNavigate();
+
+  const mutation = useMutation({
+    mutationKey: ["registerUser"],
+    mutationFn: registerUser,
+    onSuccess: () => {
+      toast.success("Registration successful!");
+      form.reset();
+      navigate("/login");
+    },
+    onError: () => {
       toast.error("Failed to submit the form. Please try again.");
-    }
+    },
+  });
+
+  function onSubmit(values: FormData) {
+    mutation.mutate(values);
   }
 
   return (

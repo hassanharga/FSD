@@ -1,4 +1,4 @@
-import { Body, Controller, Logger, Post, Request, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Logger, Post, Request, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { Request as Req } from 'express';
 import { Public } from 'src/decorators/public.decorator';
@@ -17,7 +17,13 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @ApiOperation({ summary: 'Sign up a new user' })
-  @ApiResponse({ status: 201, description: 'The user has been successfully created.', type: User })
+  @ApiResponse({
+    status: 201,
+    description: 'The user has been successfully created.',
+    schema: {
+      example: { success: true },
+    },
+  })
   @ApiResponse({ status: 400, description: 'Bad Request' })
   @Public()
   @Post('signup')
@@ -40,7 +46,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Get user profile' })
   @ApiResponse({ status: 200, description: 'The user profile has been successfully retrieved.', type: User })
   @ApiResponse({ status: 401, description: 'Unauthorized' })
-  @Post('profile')
+  @Get('profile')
   getProfile(@Request() req: Req) {
     return req.user;
   }

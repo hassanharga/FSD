@@ -56,7 +56,7 @@ const Home = () => {
   return (
     <div className="flex flex-col items-center justify-center flex-1 text-center">
       <h1 className="text-4xl font-bold mb-4">
-        Hello, {data?.name} <p className="text-sm font-light mb-4">({data?.email})</p>
+        Welcome to the application., {data?.name} <p className="text-sm font-light mb-4">({data?.email})</p>
       </h1>
       <Button onClick={handleLogout} className="px-4 py-2">
         Logout

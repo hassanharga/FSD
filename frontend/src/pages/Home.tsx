@@ -1,3 +1,4 @@
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
@@ -28,15 +29,13 @@ async function getUserProfile(): Promise<User> {
   return response.json();
 }
 
-function Home() {
+const Home = () => {
   const navigate = useNavigate();
 
   const { data, isLoading } = useQuery({
     queryKey: ["user"],
     queryFn: getUserProfile,
   });
-
-  console.log("data ====>", data);
 
   useEffect(() => {
     const token = localStorage.getItem("accessToken");
@@ -45,17 +44,25 @@ function Home() {
     }
   }, [navigate]);
 
+  const handleLogout = () => {
+    localStorage.removeItem("accessToken");
+    navigate("/login");
+  };
+
   if (isLoading) {
     return <div>Loading...</div>;
   }
 
   return (
-    <div>
-      <h1>Home</h1>
-      <p>Name: {data?.name}</p>
-      <p>Email: {data?.email}</p>
+    <div className="flex flex-col items-center justify-center h-screen text-center">
+      <h1 className="text-4xl font-bold mb-4">
+        Hello, {data?.name} <p className="text-sm font-light mb-4">({data?.email})</p>
+      </h1>
+      <Button onClick={handleLogout} className="px-4 py-2">
+        Logout
+      </Button>
     </div>
   );
-}
+};
 
 export default Home;

@@ -53,7 +53,6 @@ export const Login = () => {
     mutationKey: ["loginUser"],
     mutationFn: loginUser,
     onSuccess: (data) => {
-      toast.success("Login successful!");
       form.reset();
       if (data.accessToken) {
         localStorage.setItem("accessToken", data.accessToken);

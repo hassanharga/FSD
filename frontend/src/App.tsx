@@ -13,7 +13,6 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <main className="h-screen">
-        <Toaster position="top-right" />
         <Routes>
           <Route path="/">
             <Route index element={<Home />} />
@@ -21,6 +20,7 @@ function App() {
             <Route path="signup" element={<Signup />} />
           </Route>
         </Routes>
+        <Toaster position="top-right" />
       </main>
     </QueryClientProvider>
   );

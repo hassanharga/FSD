@@ -28,6 +28,7 @@ export class AuthController {
   @Public()
   @Post('signup')
   async signUp(@Body() createUserDto: CreateUserDto) {
+    this.logger.log(`Sign up request received for email: ${createUserDto.email}`);
     return this.authService.signUp(createUserDto);
   }
 
@@ -39,6 +40,7 @@ export class AuthController {
   @Public()
   @Post('signin')
   signIn(@Request() req: Req) {
+    this.logger.log(`Sign in request received for email: ${(req.user as RequestUser).email}`);
     return this.authService.signIn(req.user as RequestUser);
   }
 
@@ -48,6 +50,7 @@ export class AuthController {
   @ApiResponse({ status: 401, description: 'Unauthorized' })
   @Get('profile')
   getProfile(@Request() req: Req) {
+    this.logger.log(`Profile request received for user: ${(req.user as RequestUser).email}`);
     return req.user;
   }
 }

@@ -1,36 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { SignupFormData, signupSchema } from "@/schema/signup";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
-const formSchema = z
-  .object({
-    name: z.string().min(3),
-    email: z.string().email(),
-    password: z
-      .string()
-      .regex(
-        /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-        "Password must contain at least 8 characters, one letter, one number and one special character"
-      ),
-    confirmPassword: z.string(),
-  })
-  .refine((data) => data.password === data.confirmPassword, {
-    path: ["confirmPassword"],
-    message: "Passwords do not match",
-  });
-
-type FormData = z.infer<typeof formSchema>;
-
-async function registerUser(data: FormData): Promise<{ success: boolean }> {
+async function registerUser(data: SignupFormData): Promise<{ success: boolean }> {
   const response = await fetch("/api/auth/signup", {
     method: "POST",
     headers: {
@@ -46,8 +27,8 @@ async function registerUser(data: FormData): Promise<{ success: boolean }> {
 }
 
 export const Signup = () => {
-  const form = useForm<FormData>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SignupFormData>({
+    resolver: zodResolver(signupSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -71,7 +52,7 @@ export const Signup = () => {
     },
   });
 
-  function onSubmit(values: FormData) {
+  function onSubmit(values: SignupFormData) {
     mutation.mutate(values);
   }
 

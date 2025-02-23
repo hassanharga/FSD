@@ -1,29 +1,17 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { PasswordInput } from "@/components/ui/password-input";
+import { LoginFormData, loginSchema } from "@/schema/login";
 import { useMutation } from "@tanstack/react-query";
 import { Link, useNavigate } from "react-router-dom";
 
-const formSchema = z.object({
-  email: z.string().email(),
-  password: z
-    .string()
-    .regex(
-      /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-      "Password must contain at least 8 characters, one letter, one number and one special character"
-    ),
-});
-
-type FormData = z.infer<typeof formSchema>;
-
-async function loginUser(data: FormData): Promise<{ accessToken: string }> {
+async function loginUser(data: LoginFormData): Promise<{ accessToken: string }> {
   const response = await fetch("/api/auth/signin", {
     method: "POST",
     headers: {
@@ -39,8 +27,8 @@ async function loginUser(data: FormData): Promise<{ accessToken: string }> {
 }
 
 export const Login = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -64,7 +52,7 @@ export const Login = () => {
     },
   });
 
-  function onSubmit(values: FormData) {
+  function onSubmit(values: LoginFormData) {
     mutation.mutate(values);
   }
 

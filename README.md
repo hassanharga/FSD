@@ -4,7 +4,7 @@
 
 ### Prerequisites
 
-1. Install Docker Desktop for Mac from [Docker Hub](https://hub.docker.com/editions/community/docker-ce-desktop-mac)
+1. Install Docker
 
 2. Start MongoDB using Docker Compose:
    ```sh

@@ -50,11 +50,11 @@ const Home = () => {
   };
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div className="flex items-center justify-center">Loading...</div>;
   }
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen text-center">
+    <div className="flex flex-col items-center justify-center flex-1 text-center">
       <h1 className="text-4xl font-bold mb-4">
         Hello, {data?.name} <p className="text-sm font-light mb-4">({data?.email})</p>
       </h1>

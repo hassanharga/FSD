@@ -6,6 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as basicAuth from 'express-basic-auth';
 import helmet from 'helmet';
+import { EnvironmentVariables } from './env.validation';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -16,7 +17,7 @@ async function bootstrap() {
 
   app.setGlobalPrefix('api');
 
-  const appConfig = app.get<ConfigService>(ConfigService);
+  const appConfig = app.get<ConfigService<EnvironmentVariables>>(ConfigService);
   const swaggerUsername = appConfig.get<string>('SWAGGER_USERNAME')!;
   const swaggerPassword = appConfig.get<string>('SWAGGER_PASSWORD')!;
   const port = appConfig.get<number>('PORT') || 3000;
